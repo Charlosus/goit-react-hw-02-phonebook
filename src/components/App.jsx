@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Section } from './Section';
 import { PhonebookInput } from './PhonebookInput';
 import { nanoid } from 'nanoid';
+import { ContactList } from './ContactList';
 
 export const App = () => {
   const [state, setState] = useState(() => {
@@ -12,6 +13,7 @@ export const App = () => {
           contacts: [],
           name: '',
           number: '',
+          filter: '',
         };
   });
   useEffect(() => {
@@ -28,6 +30,15 @@ export const App = () => {
 
   const handleSubmit = evt => {
     evt.preventDefault();
+    const nameExists = state.contacts.some(
+      contact => contact.name.toLowerCase() === state.name.toLowerCase()
+    );
+
+    if (nameExists) {
+      alert(`${state.name} is already in the phonebook.`);
+      return;
+    }
+
     const newContact = {
       id: nanoid(),
       name: state.name,
@@ -40,7 +51,22 @@ export const App = () => {
       number: '',
     }));
   };
+  const handleDelete = id => {
+    setState(prevState => ({
+      ...prevState,
+      contacts: prevState.contacts.filter(contact => contact.id !== id),
+    }));
+  };
+  const handleFilterChange = evt => {
+    setState(prevState => ({
+      ...prevState,
+      filter: evt.target.value,
+    }));
+  };
 
+  const visibleContacts = state.contacts.filter(contact =>
+    contact.name.toLowerCase().includes((state.filter || '').toLowerCase())
+  );
   return (
     <div>
       <Section title="Phonebook">
@@ -52,13 +78,12 @@ export const App = () => {
         />
       </Section>
       <Section title="Contacts">
-        <ul>
-          {state.contacts.map(contact => (
-            <li key={contact.id}>
-              {contact.name}: {contact.number}
-            </li>
-          ))}
-        </ul>
+        <ContactList
+          filter={state.filter}
+          onFilterChange={handleFilterChange}
+          contacts={visibleContacts}
+          onDelete={handleDelete}
+        />
       </Section>
     </div>
   );
