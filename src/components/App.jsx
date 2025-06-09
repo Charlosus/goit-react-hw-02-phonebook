@@ -6,19 +6,17 @@ import { ContactList } from './ContactList';
 
 export const App = () => {
   const [state, setState] = useState(() => {
-    const saved = sessionStorage.getItem('contactsState');
-    return saved
-      ? JSON.parse(saved)
-      : {
-          contacts: [],
-          name: '',
-          number: '',
-          filter: '',
-        };
+    const savedContacts = localStorage.getItem('contacts');
+    return {
+      contacts: savedContacts ? JSON.parse(savedContacts) : [],
+      name: '',
+      number: '',
+      filter: '',
+    };
   });
   useEffect(() => {
-    sessionStorage.setItem('contactsState', JSON.stringify(state));
-  }, [state]);
+    localStorage.setItem('contacts', JSON.stringify(state.contacts));
+  }, [state.contacts]);
 
   const handleChange = evt => {
     const { name, value } = evt.target;
